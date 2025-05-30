@@ -9,9 +9,11 @@
 import SignInAppleAsync
 
 @MainActor
-struct FirebaseAuthService: AuthService {
+public struct FirebaseAuthService: AuthService {
 
-    func addAuthenticatedUserListener(onListenerAttached: (any NSObjectProtocol) -> Void) -> AsyncStream<UserAuthInfo?> {
+    public init() { }
+
+    public func addAuthenticatedUserListener(onListenerAttached: (any NSObjectProtocol) -> Void) -> AsyncStream<UserAuthInfo?> {
         AsyncStream { continuation in
             let listener = Auth.auth().addStateDidChangeListener { _, currentUser in
                 if let currentUser {
@@ -26,23 +28,23 @@ struct FirebaseAuthService: AuthService {
         }
     }
 
-    func removeAuthenticatedUserListener(listener: any NSObjectProtocol) {
+    public func removeAuthenticatedUserListener(listener: any NSObjectProtocol) {
         Auth.auth().removeStateDidChangeListener(listener)
     }
 
-    func getAuthenticatedUser() -> UserAuthInfo? {
+    public func getAuthenticatedUser() -> UserAuthInfo? {
         if let user = Auth.auth().currentUser {
             return UserAuthInfo(user: user)
         }
         return nil
     }
 
-    func signInAnonymously() async throws -> (user: UserAuthInfo, isNewUser: Bool) {
+    public func signInAnonymously() async throws -> (user: UserAuthInfo, isNewUser: Bool) {
         let result = try await Auth.auth().signInAnonymously()
         return result.asAuthInfo
     }
 
-    func signInApple() async throws -> (user: UserAuthInfo, isNewUser: Bool) {
+    public func signInApple() async throws -> (user: UserAuthInfo, isNewUser: Bool) {
         let helper = SignInWithAppleHelper()
         let response = try await helper.signIn()
 
@@ -76,11 +78,11 @@ struct FirebaseAuthService: AuthService {
         return result.asAuthInfo
     }
 
-    func signOut() throws {
+    public func signOut() throws {
         try Auth.auth().signOut()
     }
 
-    func deleteAccount() async throws {
+    public func deleteAccount() async throws {
         guard let user = Auth.auth().currentUser else {
             throw AuthError.userNotFound
         }
@@ -119,11 +121,11 @@ struct FirebaseAuthService: AuthService {
         }
     }
 
-    enum AuthError: LocalizedError {
+    public enum AuthError: LocalizedError {
         case userNotFound
         case reauthAccountChanged
 
-        var errorDescription: String? {
+        public var errorDescription: String? {
             switch self {
             case .userNotFound:
                 return "Current authenticated user not found."
